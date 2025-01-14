@@ -39,6 +39,8 @@ Point points[] =
 int stick_length = 4;
 
 float distance(Point *first, Point *second);
+Vector2 TrigonometricFuncForPoints(Point *first, Point *second);
+void changeRopeLength(bool isWayUp, Stick *sticks, int stick_length, float rope_distance_change);
 void prepareSticksVerlet(Stick *input_stick, int stick_index, Point *point);
 void updatePoints(Point *main_points, int main_points_length, int screen_width, int screen_height);
 void updateSticks(Stick *main_sticks, int main_stick_length);
@@ -75,11 +77,11 @@ int main()
 
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
-	InitWindow(width, height, "Hello Raylib");
+	InitWindow(width, height, "Verlet Interpolartion");
 
 	SearchAndSetResourceDir("resources");
 
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
+	// Texture wabbit = LoadTexture("wabbit_alpha.png");
 
 	while (!WindowShouldClose())
 	{
@@ -99,7 +101,11 @@ int main()
 		if (IsKeyPressed(KEY_SPACE))
 			pause = !pause;
 
-		if (IsKeyPressed(KEY_LEFT))
+		if (IsKeyPressed(KEY_UP))
+			changeRopeLength(true, sticks, 4, 2);
+		else if (IsKeyPressed(KEY_DOWN))
+			changeRopeLength(false, sticks, 4, 2);
+		else if (IsKeyPressed(KEY_LEFT))
 			points[4].old_vec.x = points[4].current_vec.x + 10;
 		else if (IsKeyPressed(KEY_RIGHT))
 			points[4].old_vec.x = points[4].current_vec.x - 10;
@@ -116,7 +122,7 @@ int main()
 
 		ClearBackground(RAYWHITE);
 
-		DrawText("Hello Raylib", 200, 200, 20, BLUE);
+		DrawText("Verlet Interpolartion", 200, 200, 20, BLUE);
 		for (size_t i = 0; i < 5; i++)
 		{
 			DrawText(TextFormat("points x: %f", points[i].current_vec.x), 35, 10 + (i * 50), 10, RED);
@@ -124,7 +130,7 @@ int main()
 			DrawText(TextFormat("point pinned: %f", points[i].pinned), 35, 30 + (i * 50), 10, RED);
 		}
 
-		DrawTexture(wabbit, 400, 200, WHITE);
+		// DrawTexture(wabbit, 400, 200, WHITE);
 
 		renderPoints(points, 5);
 
@@ -279,10 +285,57 @@ float distance(Point *first, Point *second)
 	return sqrtf(dx * dx + dy * dy);
 }
 
-void increaseDistance()
+Vector2 TrigonometricFuncForPoints(Point *first, Point *second)
 {
+	float _x = first->current_vec.x - second->current_vec.x;
+	float _y = first->current_vec.y - second->current_vec.y;
+
+	float _hip_sq = (_x * _x) + (_y * _y);
+
+	float cos = _x / sqrtf(_hip_sq);
+	float sin = _y / sqrtf(_hip_sq);
+
+	Vector2 returnvector = {cos, sin};
+
+	return returnvector;
+
+	// Instantiate(refrance_game_object_circle,object_points[0].point.transform.position - new Vector3(_cos,_sin,1f),refrance_game_object_circle.transform.rotation);
 }
 
-void decraseDistance()
+void changeRopeLength(bool isWayUp, Stick *sticks, int stick_length, float rope_distance_change)
 {
+	int i;
+
+	for (i = 0; i < stick_length; i++)
+	{
+		Stick *now_stick = sticks + i;
+
+		if (now_stick != NULL)
+		{
+
+			Vector2 trigonometric_vec = TrigonometricFuncForPoints(now_stick->Start, now_stick->End);
+
+			if (isWayUp)
+			{
+				now_stick->Start->current_vec.x -= trigonometric_vec.x * rope_distance_change;
+				now_stick->Start->current_vec.y -= trigonometric_vec.y * rope_distance_change;
+			}
+
+			else
+			{
+				now_stick->Start->current_vec.x += trigonometric_vec.x * rope_distance_change;
+				now_stick->Start->current_vec.y += trigonometric_vec.y * rope_distance_change;
+			}
+
+			now_stick->distance = distance(now_stick->Start, now_stick->End);
+
+			now_stick->Start->current_vec.x = now_stick->Start->old_vec.x;
+			now_stick->Start->current_vec.y = now_stick->Start->old_vec.y;
+		}
+
+		else
+		{
+			return;
+		}
+	}
 }
