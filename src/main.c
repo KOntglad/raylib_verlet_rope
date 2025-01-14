@@ -278,3 +278,11 @@ float distance(Point *first, Point *second)
 	float dy = second->current_vec.y - first->current_vec.y;
 	return sqrtf(dx * dx + dy * dy);
 }
+
+void increaseDistance()
+{
+}
+
+void decraseDistance()
+{
+}
