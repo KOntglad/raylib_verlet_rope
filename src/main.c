@@ -34,7 +34,7 @@ Point points[] =
 		{{320, 60}, {320, 60}, false},
 		{{320, 110}, {320, 110}, false},
 		{{320, 160}, {320, 160}, false},
-		{{320, 210}, {320, 210}, false},
+		{{320, 210}, {300, 210}, false},
 };
 int stick_length = 4;
 
@@ -50,6 +50,7 @@ float gravity = 2;
 float friction = 0.999;
 int main()
 {
+
 	sticks = (Stick *)malloc(stick_length * sizeof(Stick));
 
 	double previousTime = GetTime(); // Previous time measure
@@ -62,7 +63,7 @@ int main()
 	float position = 0.0f;	  // Circle position
 	bool pause = false;		  // Pause control flag
 
-	int targetFPS = 2;
+	int targetFPS = 60;
 
 	int width = 640;
 	int height = 480;
@@ -85,22 +86,23 @@ int main()
 
 		updatePoints(points, 5, width, height);
 
-		for (int i = 0; i < 5; i++)
-		{
-			constrainPoints(points, 5, width, height);
-		}
+		constrainPoints(points, 5, width, height);
 
-		updateSticks(sticks, 4);
+		for (int i = 0; i < 120; i++)
+		{
+
+			updateSticks(sticks, 4);
+		}
 
 		PollInputEvents();
 
 		if (IsKeyPressed(KEY_SPACE))
 			pause = !pause;
 
-		if (IsKeyPressed(KEY_UP))
-			targetFPS += 20;
-		else if (IsKeyPressed(KEY_DOWN))
-			targetFPS -= 20;
+		if (IsKeyPressed(KEY_LEFT))
+			points[4].old_vec.x = points[4].current_vec.x + 10;
+		else if (IsKeyPressed(KEY_RIGHT))
+			points[4].old_vec.x = points[4].current_vec.x - 10;
 
 		if (targetFPS < 0)
 			targetFPS = 0;
@@ -117,9 +119,9 @@ int main()
 		DrawText("Hello Raylib", 200, 200, 20, BLUE);
 		for (size_t i = 0; i < 5; i++)
 		{
-			DrawText(TextFormat("points x: %d", (int)points[i].current_vec.x), 35, 10 + (i * 50), 10, RED);
-			DrawText(TextFormat("points y: %d", (int)points[i].current_vec.y), 35, 20 + (i * 50), 10, RED);
-			DrawText(TextFormat("point pinned: %d", (int)points[i].pinned), 35, 30 + (i * 50), 10, RED);
+			DrawText(TextFormat("points x: %f", points[i].current_vec.x), 35, 10 + (i * 50), 10, RED);
+			DrawText(TextFormat("points y: %f", points[i].current_vec.y), 35, 20 + (i * 50), 10, RED);
+			DrawText(TextFormat("point pinned: %f", points[i].pinned), 35, 30 + (i * 50), 10, RED);
 		}
 
 		DrawTexture(wabbit, 400, 200, WHITE);
