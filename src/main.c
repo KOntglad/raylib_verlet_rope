@@ -109,6 +109,26 @@ int main()
 			points[4].old_vec.x = points[4].current_vec.x + 10;
 		else if (IsKeyPressed(KEY_RIGHT))
 			points[4].old_vec.x = points[4].current_vec.x - 10;
+		else if (IsKeyPressed(KEY_A))
+		{
+			points[0].current_vec.x -= 10;
+			points[0].old_vec = points[0].current_vec;
+		}
+		else if (IsKeyPressed(KEY_D))
+		{
+			points[0].current_vec.x += 10;
+			points[0].old_vec = points[0].current_vec;
+		}
+		else if (IsKeyPressed(KEY_W))
+		{
+			points[0].current_vec.y -= 10;
+			points[0].old_vec = points[0].current_vec;
+		}
+		else if (IsKeyPressed(KEY_S))
+		{
+			points[0].current_vec.y += 10;
+			points[0].old_vec = points[0].current_vec;
+		}
 
 		if (targetFPS < 0)
 			targetFPS = 0;
@@ -122,12 +142,12 @@ int main()
 
 		ClearBackground(RAYWHITE);
 
-		DrawText("Verlet Interpolartion", 200, 200, 20, BLUE);
+		DrawText("Verlet Interpolartion", 10, 10, 5, BLUE);
 		for (size_t i = 0; i < 5; i++)
 		{
-			DrawText(TextFormat("points x: %f", points[i].current_vec.x), 35, 10 + (i * 50), 10, RED);
-			DrawText(TextFormat("points y: %f", points[i].current_vec.y), 35, 20 + (i * 50), 10, RED);
-			DrawText(TextFormat("point pinned: %f", points[i].pinned), 35, 30 + (i * 50), 10, RED);
+			DrawText(TextFormat("points x: %f", points[i].current_vec.x), 35, 20 + (i * 40), 10, RED);
+			DrawText(TextFormat("points y: %f", points[i].current_vec.y), 35, 30 + (i * 40), 10, RED);
+			DrawText(TextFormat("point pinned: %f", points[i].pinned), 35, 40 + (i * 40), 10, RED);
 		}
 
 		// DrawTexture(wabbit, 400, 200, WHITE);
@@ -155,7 +175,7 @@ int main()
 		previousTime = currentTime;
 	}
 
-	UnloadTexture(wabbit);
+	// UnloadTexture(wabbit);
 
 	CloseWindow();
 	return 0;
