@@ -30,16 +30,26 @@ Stick *sticks;
 
 Point points[] =
 	{
-		{{320, 10}, {320, 10}, true},
-		{{320, 60}, {320, 60}, false},
-		{{320, 110}, {320, 110}, false},
-		{{320, 160}, {320, 160}, false},
-		{{320, 210}, {300, 210}, false},
+		{{320, 210}, {320, 210}, true},
+		{{320, 230}, {320, 230}, false},
+		{{320, 250}, {320, 250}, false},
+
+		{{320, 270}, {320, 270}, false},
+		{{320, 290}, {300, 290}, false},
+		{{320, 310}, {320, 310}, false},
+
+		{{320, 330}, {320, 330}, false},
+		{{320, 350}, {320, 350}, false},
+		{{320, 370}, {300, 370}, false},
+
+		{{320, 390}, {320, 390}, false},
+		{{320, 400}, {300, 400}, false},
 };
-int stick_length = 4;
+int stick_length = 11;
 
 float distance(Point *first, Point *second);
-Vector2 TrigonometricFuncForPoints(Point *first, Point *second);
+void throwRope(Point *throw, float throw_force, int which);
+Vector2 TrigonometricFuncForPoints(Vector2 first, Vector2 second);
 void changeRopeLength(bool isWayUp, Stick *sticks, int stick_length, float rope_distance_change);
 void prepareSticksVerlet(Stick *input_stick, int stick_index, Point *point);
 void updatePoints(Point *main_points, int main_points_length, int screen_width, int screen_height);
@@ -67,6 +77,8 @@ int main()
 
 	int targetFPS = 60;
 
+	int throwForce = 10;
+
 	int width = 640;
 	int height = 480;
 
@@ -74,6 +86,13 @@ int main()
 	prepareSticksVerlet(sticks, 1, points);
 	prepareSticksVerlet(sticks, 2, points);
 	prepareSticksVerlet(sticks, 3, points);
+	prepareSticksVerlet(sticks, 4, points);
+	prepareSticksVerlet(sticks, 5, points);
+	prepareSticksVerlet(sticks, 6, points);
+	prepareSticksVerlet(sticks, 7, points);
+	prepareSticksVerlet(sticks, 8, points);
+	prepareSticksVerlet(sticks, 9, points);
+	prepareSticksVerlet(sticks, 10, points);
 
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
@@ -86,14 +105,14 @@ int main()
 	while (!WindowShouldClose())
 	{
 
-		updatePoints(points, 5, width, height);
+		updatePoints(points, 11, width, height);
 
-		constrainPoints(points, 5, width, height);
+		constrainPoints(points, 11, width, height);
 
 		for (int i = 0; i < 120; i++)
 		{
 
-			updateSticks(sticks, 4);
+			updateSticks(sticks, 10);
 		}
 
 		PollInputEvents();
@@ -101,14 +120,28 @@ int main()
 		if (IsKeyPressed(KEY_SPACE))
 			pause = !pause;
 
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+		{
+			throwRope(points, throwForce, 10);
+		}
 		if (IsKeyPressed(KEY_UP))
-			changeRopeLength(true, sticks, 4, 2);
+			changeRopeLength(true, sticks, 10, 2);
 		else if (IsKeyPressed(KEY_DOWN))
-			changeRopeLength(false, sticks, 4, 2);
+			changeRopeLength(false, sticks, 10, 2);
 		else if (IsKeyPressed(KEY_LEFT))
-			points[4].old_vec.x = points[4].current_vec.x + 10;
+			points[10].old_vec.x = points[10].current_vec.x + 10;
 		else if (IsKeyPressed(KEY_RIGHT))
-			points[4].old_vec.x = points[4].current_vec.x - 10;
+			points[10].old_vec.x = points[10].current_vec.x - 10;
+
+		if (IsKeyPressed(KEY_R))
+			targetFPS += 6;
+		else if (IsKeyPressed(KEY_E))
+			targetFPS -= 6;
+
+		if (IsKeyPressed(KEY_Z))
+			throwForce -= 5;
+		else if (IsKeyPressed(KEY_X))
+			throwForce += 5;
 
 		if (targetFPS < 0)
 			targetFPS = 0;
@@ -122,17 +155,19 @@ int main()
 
 		ClearBackground(RAYWHITE);
 
-		DrawText("Verlet Interpolartion", 200, 200, 20, BLUE);
-		for (size_t i = 0; i < 5; i++)
+		DrawText("Verlet Interpolartion", 400, 20, 20, BLUE);
+		DrawText(TextFormat("Target FPS: %d", targetFPS), 400, 50, 5, BLUE);
+		DrawText(TextFormat("Throw Force: %d", throwForce), 400, 70, 5, BROWN);
+		for (size_t i = 0; i < 11; i++)
 		{
-			DrawText(TextFormat("points x: %f", points[i].current_vec.x), 35, 10 + (i * 50), 10, RED);
-			DrawText(TextFormat("points y: %f", points[i].current_vec.y), 35, 20 + (i * 50), 10, RED);
-			DrawText(TextFormat("point pinned: %f", points[i].pinned), 35, 30 + (i * 50), 10, RED);
+			DrawText(TextFormat("points x: %f", points[i].current_vec.x), 35, 10 + (i * 30), 10, RED);
+			DrawText(TextFormat("points y: %f", points[i].current_vec.y), 35, 20 + (i * 30), 10, RED);
+			DrawText(TextFormat("point pinned: %f", points[i].pinned), 35, 30 + (i * 30), 10, RED);
 		}
 
 		// DrawTexture(wabbit, 400, 200, WHITE);
 
-		renderPoints(points, 5);
+		renderPoints(points, 11);
 
 		EndDrawing();
 
@@ -155,7 +190,7 @@ int main()
 		previousTime = currentTime;
 	}
 
-	UnloadTexture(wabbit);
+	// UnloadTexture(wabbit);
 
 	CloseWindow();
 	return 0;
@@ -285,10 +320,10 @@ float distance(Point *first, Point *second)
 	return sqrtf(dx * dx + dy * dy);
 }
 
-Vector2 TrigonometricFuncForPoints(Point *first, Point *second)
+Vector2 TrigonometricFuncForPoints(Vector2 first, Vector2 second)
 {
-	float _x = first->current_vec.x - second->current_vec.x;
-	float _y = first->current_vec.y - second->current_vec.y;
+	float _x = first.x - second.x;
+	float _y = first.y - second.y;
 
 	float _hip_sq = (_x * _x) + (_y * _y);
 
@@ -302,6 +337,15 @@ Vector2 TrigonometricFuncForPoints(Point *first, Point *second)
 	// Instantiate(refrance_game_object_circle,object_points[0].point.transform.position - new Vector3(_cos,_sin,1f),refrance_game_object_circle.transform.rotation);
 }
 
+void throwRope(Point *throw, float throw_force, int which)
+{
+	Point *throw_point = throw +which;
+	Vector2 vec_mouse = GetMousePosition();
+	Vector2 vec_cos_sin = TrigonometricFuncForPoints(throw_point->current_vec, vec_mouse);
+	Vector2 throw_vec = {(vec_cos_sin.x * throw_force) + throw_point->old_vec.x, (vec_cos_sin.y * throw_force) + throw_point->old_vec.y};
+	throw_point->old_vec = throw_vec;
+}
+
 void changeRopeLength(bool isWayUp, Stick *sticks, int stick_length, float rope_distance_change)
 {
 	int i;
@@ -313,7 +357,7 @@ void changeRopeLength(bool isWayUp, Stick *sticks, int stick_length, float rope_
 		if (now_stick != NULL)
 		{
 
-			Vector2 trigonometric_vec = TrigonometricFuncForPoints(now_stick->Start, now_stick->End);
+			Vector2 trigonometric_vec = TrigonometricFuncForPoints(now_stick->Start->current_vec, now_stick->End->current_vec);
 
 			if (isWayUp)
 			{
