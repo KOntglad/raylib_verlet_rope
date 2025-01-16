@@ -133,6 +133,27 @@ int main()
 		else if (IsKeyPressed(KEY_RIGHT))
 			points[10].old_vec.x = points[10].current_vec.x - 10;
 
+		if (IsKeyPressed(KEY_A))
+		{
+			points[0].current_vec.x -= 10;
+			points[0].old_vec = points[0].current_vec;
+		}
+		else if (IsKeyPressed(KEY_D))
+		{
+			points[0].current_vec.x += 10;
+			points[0].old_vec = points[0].current_vec;
+		}
+		else if (IsKeyPressed(KEY_W))
+		{
+			points[0].current_vec.y -= 10;
+			points[0].old_vec = points[0].current_vec;
+		}
+		else if (IsKeyPressed(KEY_S))
+		{
+			points[0].current_vec.y += 10;
+			points[0].old_vec = points[0].current_vec;
+		}
+
 		if (IsKeyPressed(KEY_R))
 			targetFPS += 6;
 		else if (IsKeyPressed(KEY_E))
