@@ -11,11 +11,20 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "math.h"
 #include "resource_dir.h" // utility header for SearchAndSetResourceDir
 
+typedef struct Box_collision
+{
+	Vector2 position;
+	Vector2 scale;
+
+} Box_collision;
+
 typedef struct Point
 {
+	// Box_collision point_collider;
 	Vector2 current_vec;
 	Vector2 old_vec;
 	bool pinned;
+
 } Point;
 
 typedef struct Stick
@@ -26,7 +35,15 @@ typedef struct Stick
 
 } Stick;
 
-Stick *sticks;
+typedef struct Box
+{
+
+	Vector2 position;
+	Vector2 scale;
+
+} Box;
+
+Box_collision boxes_collision[];
 
 Point points[] =
 	{
@@ -43,19 +60,33 @@ Point points[] =
 		{{320, 370}, {300, 370}, false},
 
 		{{320, 390}, {320, 390}, false},
-		{{320, 400}, {300, 400}, false},
+		{{320, 410}, {350, 410}, false},
 };
+
+float point_scale = 10;
+
+Stick *sticks;
+
 int stick_length = 11;
+
+Box Boexs[] =
+	{
+		{{200, 200}, {40, 60}},
+};
+
+int box_length = 1;
 
 float distance(Point *first, Point *second);
 void throwRope(Point *throw, float throw_force, int which);
 Vector2 TrigonometricFuncForPoints(Vector2 first, Vector2 second);
+void collisionStatus(Box_collision *main_colliders, int collider_length);
 void changeRopeLength(bool isWayUp, Stick *sticks, int stick_length, float rope_distance_change);
 void prepareSticksVerlet(Stick *input_stick, int stick_index, Point *point);
 void updatePoints(Point *main_points, int main_points_length, int screen_width, int screen_height);
 void updateSticks(Stick *main_sticks, int main_stick_length);
 void constrainPoints(Point *main_points, int main_points_length, int screen_width, int screen_height);
 void renderPoints(Point *main_points, int main_points_length);
+void renderBoxes(Box *main_boxes, int box_length);
 
 float bounce = 0.1;
 float gravity = 2;
@@ -77,7 +108,7 @@ int main()
 
 	int targetFPS = 60;
 
-	int throwForce = 10;
+	int throwForce = 200;
 
 	int width = 640;
 	int height = 480;
@@ -189,6 +220,7 @@ int main()
 		// DrawTexture(wabbit, 400, 200, WHITE);
 
 		renderPoints(points, 11);
+		// renderBoxes(Boexs, box_length);
 
 		EndDrawing();
 
@@ -404,3 +436,29 @@ void changeRopeLength(bool isWayUp, Stick *sticks, int stick_length, float rope_
 		}
 	}
 }
+
+void renderBoxes(Box *main_boxes, int box_length)
+{
+
+	int i;
+
+	for (i = 0; i < box_length; i++)
+	{
+		Box *now_box = main_boxes + i;
+		DrawRectangle(now_box->position.x, now_box->position.y, now_box->scale.x, now_box->scale.y, RED);
+	}
+}
+
+/*void collisionStatus(Box_collision *main_colliders, int collider_length)
+{
+	int i, j;
+	for (i = 0; i < collider_length; i++)
+	{
+		Box_collision *i_collider = main_colliders + i;
+		for (j = 0; i < collider_length; i++)
+		{
+			Box_collision *j_collider = main_colliders + i;
+			if ()
+		}
+	}
+}*/
