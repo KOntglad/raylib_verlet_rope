@@ -15,6 +15,7 @@ typedef struct Box_collision
 {
 	Vector2 position;
 	Vector2 scale;
+	int struct_index;
 
 } Box_collision;
 
@@ -43,8 +44,6 @@ typedef struct Box
 
 } Box;
 
-Box_collision boxes_collision[];
-
 Point points[] =
 	{
 		{{320, 210}, {320, 210}, true},
@@ -69,16 +68,15 @@ Stick *sticks;
 
 int stick_length = 11;
 
-Box Boexs[] =
-	{
-		{{200, 200}, {40, 60}},
-};
-
-int box_length = 1;
+Box_collision* box_colliders;
+int box_length = 2;
+int box_which_point[] = { 0,10 };
 
 float distance(Point *first, Point *second);
 void throwRope(Point *throw, float throw_force, int which);
 Vector2 TrigonometricFuncForPoints(Vector2 first, Vector2 second);
+
+void prepareColliders(Box_collision* colliders, int which[],int length);
 void collisionStatus(Box_collision *main_colliders, int collider_length);
 void changeRopeLength(bool isWayUp, Stick *sticks, int stick_length, float rope_distance_change);
 void prepareSticksVerlet(Stick *input_stick, int stick_index, Point *point);
@@ -91,10 +89,14 @@ void renderBoxes(Box *main_boxes, int box_length);
 float bounce = 0.1;
 float gravity = 2;
 float friction = 0.999;
+
+
 int main()
 {
 
 	sticks = (Stick *)malloc(stick_length * sizeof(Stick));
+	box_colliders = (Box_collision*)malloc(box_length * sizeof(Box_collision));
+
 
 	double previousTime = GetTime(); // Previous time measure
 	double currentTime = 0.0;		 // Current time measure
@@ -448,6 +450,26 @@ void renderBoxes(Box *main_boxes, int box_length)
 		DrawRectangle(now_box->position.x, now_box->position.y, now_box->scale.x, now_box->scale.y, RED);
 	}
 }
+
+void prepareColliders(Box_collision* colliders, int which[],int length)
+{
+	int i = 0;
+	for(int i = 0;i < length;i++)
+	{
+		Box_collision* i_collider = colliders + i;
+		i_collider->struct_index = which[i];
+	}
+
+
+}
+
+void colliderUpdate(Box_collision* colliders, Vector2 vectors, int which)
+{
+	Box_collision* update_collider = colliders + which;
+	update_collider->position = vectors;
+
+}
+
 
 /*void collisionStatus(Box_collision *main_colliders, int collider_length)
 {
